@@ -25,12 +25,12 @@ def fixture_bar_150() -> Bar:
 
 # Plate tests
 @pytest.mark.plate
-def test_plate_init(plate_10):
+def test_plate_init(plate_10: Plate) -> None:
     assert plate_10.weight == 10
 
 
 @pytest.mark.plate
-def test_plate_validate_weight():
+def test_plate_validate_weight() -> None:
     with pytest.raises(NegativeOrZeroWeightError):
         Plate(0)
     with pytest.raises(NegativeOrZeroWeightError):
@@ -38,7 +38,7 @@ def test_plate_validate_weight():
 
 
 @pytest.mark.plate
-def test_plate_radd(plate_10):
+def test_plate_radd(plate_10: Plate) -> None:
     assert 10 + plate_10 == 20
     with pytest.raises(TypeError):
         "1" + plate_10
@@ -46,7 +46,7 @@ def test_plate_radd(plate_10):
 
 # Bar tests
 @pytest.mark.bar
-def test_bar_init(bar_150) -> None:
+def test_bar_init(bar_150: Bar) -> None:
     assert bar_150.max_weight == 150
 
 
@@ -59,7 +59,7 @@ def test_bar_validate_max_weight() -> None:
 
 
 @pytest.mark.bar
-def test_bar_balance_factor(bar_150, plate_10, plate_20) -> None:
+def test_bar_balance_factor(bar_150: Bar, plate_10: Plate, plate_20: Plate) -> None:
     bar_150.add_to_left(plate_10)
     bar_150.add_to_right(plate_20)
     assert bar_150.get_balance_factor() == 10
@@ -72,7 +72,7 @@ def test_bar_balance_factor(bar_150, plate_10, plate_20) -> None:
 
 
 @pytest.mark.bar
-def test_bar_add(bar_150, plate_10) -> None:
+def test_bar_add(bar_150: Bar, plate_10: Plate) -> None:
     bar_150.add_to_left(plate_10)
     assert bar_150.get_total_weight() == 10
     assert bar_150.get_balance_factor() == 10
@@ -87,7 +87,7 @@ def test_bar_add(bar_150, plate_10) -> None:
 
 
 @pytest.mark.bar
-def test_bar_pop(bar_150, plate_10) -> None:
+def test_bar_pop(bar_150: Bar, plate_10: Plate) -> None:
     bar_150.add(plate_10)
     bar_150.add(plate_10)
 
@@ -111,14 +111,14 @@ def test_bar_max_weight_excess() -> None:
 
 
 @pytest.mark.bar
-def test_bar_imbalance_error(bar_150, plate_10, plate_30):
+def test_bar_imbalance_error(bar_150: Bar, plate_10: Plate, plate_30: Plate) -> None:
     bar_150.add(plate_10)
     with pytest.raises(ImbalanceError):
         bar_150.add(plate_30)
 
 
 @pytest.mark.bar
-def test_bar_to_str(bar_150, plate_10):
+def test_bar_to_str(bar_150: Bar, plate_10: Plate) -> None:
     assert str(bar_150) == "=|=============|="
 
     bar_150.add_to_left(plate_10)
