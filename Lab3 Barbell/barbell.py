@@ -15,7 +15,7 @@ class Plate:
     Attributes:
     ----------
     weight : int
-        Contains the weight of plate.
+        Contains the weight of the plate.
     """
 
     def __init__(self, weight: int) -> None:
@@ -67,7 +67,7 @@ class Plate:
         Raises:
         ------
         NegativeOrZeroWeightError
-            If weight less than zero.
+            If weight less than or equal to zero.
         """
         if weight <= 0:
             raise NegativeOrZeroWeightError("Weight must be greater than zero")
@@ -207,10 +207,9 @@ class Bar:
             If the removal of the plate would cause the permissible level of imbalance to be exceeded.
         """
         if not self.__left_plates:
-            return
+            return None
 
         left_side: list[Plate] = self.__left_plates[:-1]
-
         if abs(sum(left_side) - sum(self.__right_plates)) >= 20:
             raise ImbalanceError("Balancing allowed level exceeded")
 
@@ -231,10 +230,9 @@ class Bar:
             If the removal of the plate would cause the permissible level of imbalance to be exceeded.
         """
         if not self.__right_plates:
-            return
+            return None
 
         right_side: list[Plate] = self.__right_plates[:-1]
-
         if abs(sum(self.__left_plates) - sum(right_side)) >= 20:
             raise ImbalanceError("Balancing allowed level exceeded")
 
@@ -284,7 +282,7 @@ class Bar:
         Raises:
         ------
         NegativeOrZeroWeightError
-            If max weight less than zero.
+            If max weight less than or equal to zero.
         """
         if weight <= 0:
             raise NegativeOrZeroWeightError("Weight must be greater than zero")
@@ -305,7 +303,7 @@ class Bar:
         MaxWeightExcessError
             If the adding of the plate will lead to increase in the maximum weight.
         """
-        if self.get_total_weight() + plate.weight > self.max_weight:
+        if self.get_total_weight() + plate.weight > self.__max_weight:
             raise MaxWeightExcessError("Maximum weight exceeded")
 
     @private
@@ -319,7 +317,7 @@ class Bar:
             Plate to add on the side of the barbell.
         to_left : bool
             Plate is added to the left side.
-            Defalult True.
+            Default: True.
 
         Raises:
         ------

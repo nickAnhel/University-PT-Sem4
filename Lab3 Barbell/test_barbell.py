@@ -115,3 +115,14 @@ def test_bar_imbalance_error(bar_150, plate_10, plate_30):
     bar_150.add(plate_10)
     with pytest.raises(ImbalanceError):
         bar_150.add(plate_30)
+
+
+@pytest.mark.bar
+def test_bar_to_str(bar_150, plate_10):
+    assert str(bar_150) == "=|=============|="
+
+    bar_150.add_to_left(plate_10)
+    assert str(bar_150) == "=10=|=============|="
+
+    bar_150.add_to_right(plate_10)
+    assert str(bar_150) == "=10=|=============|=10="
