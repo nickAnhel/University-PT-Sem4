@@ -187,7 +187,7 @@ class Bar:
         to_left_balance: int = abs(sum(self.__left_plates) + plate.weight - sum(self.__right_plates))
         to_right_balance: int = abs(sum(self.__left_plates) - plate.weight - sum(self.__right_plates))
 
-        if to_left_balance < to_right_balance:
+        if to_left_balance <= to_right_balance:
             self.add_to_left(plate)
         else:
             self.add_to_right(plate)
@@ -214,7 +214,7 @@ class Bar:
         if abs(sum(left_side) - sum(self.__right_plates)) >= 20:
             raise ImbalanceError("Balancing allowed level exceeded")
 
-        self.__left_plates.pop()
+        return self.__left_plates.pop()
 
     def pop_right(self) -> Plate:
         """
@@ -238,7 +238,7 @@ class Bar:
         if abs(sum(self.__left_plates) - sum(right_side)) >= 20:
             raise ImbalanceError("Balancing allowed level exceeded")
 
-        self.__right_plates.pop()
+        return self.__right_plates.pop()
 
     def print_bar(self) -> None:
         """Print the string representation of the barbell."""
