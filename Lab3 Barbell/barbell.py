@@ -19,7 +19,6 @@ class Plate:
     """
 
     def __init__(self, weight: int) -> None:
-        """In progress"""
         self.__weight: int = self._validate_weight(weight)
 
     @property
@@ -58,17 +57,17 @@ class Plate:
         Parametrs:
         ---------
         weight : int
-            Weight of the plate
+            Weight of the plate.
+
+        Returns:
+        -------
+        weight : int
+            Weight if it's correct.
 
         Raises:
         ------
         NegativeOrZeroWeightError
             If weight less than zero.
-
-        Returns:
-        -------
-        int
-            Weight if it's correct.
         """
         if weight <= 0:
             raise NegativeOrZeroWeightError("Weight must be greater than zero")
@@ -92,11 +91,26 @@ class Bar:
     def get_balance_factor() -> int:
         Return the weight difference between the left and the right sides of the barbell.
 
+    def add_to_left(plate: Plate) -> None:
+        Add the plate to the left side of the barbell.
 
+    def add_to_right(plate: Plate) -> None:
+        Add the plate to the right side of the barbell.
+
+    def add(plate: Plate) -> None:
+        Add the plate to the side of the barbell where the level of balance factor will be minimal.
+
+    def pop_left() -> Plate:
+        Remove the last added plate from the left side of the barbell and return it.
+
+    def pop_right() -> Plate:
+        Remove the last added plate from the right side of the barbell and return it.
+
+    def print_bar() -> None:
+        Print the string representation of the barbell.
     """
 
     def __init__(self, max_weight: int) -> None:
-        """In progress"""
         self.__max_weight: int = self._validate_max_weight(max_weight)
         self.__left_plates: list[Plate] = []
         self.__right_plates: list[Plate] = []
@@ -115,22 +129,63 @@ class Bar:
         return abs(sum(self.__left_plates) - sum(self.__right_plates))
 
     def add_to_left(self, plate: Plate) -> None:
+        """
+        Add the plate to the left side of the barbell.
+
+        Parametrs:
+        ---------
+        plate : Plate
+            Plate to add to the barbell.
+
+        Raises:
+        ------
+        MaxWeightExcessError
+            If adding a plate will lead to increase in the maximum weight.
+        ImbalanceError
+            If adding a plate will lead to increase in the acciptable level of imbalance.
+        """
         self._validate_bar(plate)
         self._validate_bar_balance(plate)
         self.__left_plates.append(plate)
 
     def add_to_right(self, plate: Plate) -> None:
+        """
+        Add the plate to the right side of the barbell.
+
+        Parametrs:
+        ---------
+        plate : Plate
+            Plate to add to the barbell.
+
+        Raises:
+        ------
+        MaxWeightExcessError
+            If adding a plate will lead to increase in the maximum weight.
+        ImbalanceError
+            If adding a plate will lead to increase in the acciptable level of imbalance.
+        """
         self._validate_bar(plate)
         self._validate_bar_balance(plate, to_left=False)
         self.__right_plates.append(plate)
 
     def add(self, plate: Plate) -> None:
-        to_left_balance: int = abs(
-            sum(self.__left_plates) + plate.weight - sum(self.__right_plates)
-        )
-        to_right_balance: int = abs(
-            sum(self.__left_plates) - plate.weight - sum(self.__right_plates)
-        )
+        """
+        Add the plate to the side of the barbell where the level of balance factor will be minimal.
+
+        Parametrs:
+        ---------
+        plate : Plate
+            Plate to add to the barbell.
+
+        Raises:
+        ------
+        MaxWeightExcessError
+            If adding a plate will lead to increase in the maximum weight.
+        ImbalanceError
+            If adding a plate will lead to increase in the acciptable level of imbalance.
+        """
+        to_left_balance: int = abs(sum(self.__left_plates) + plate.weight - sum(self.__right_plates))
+        to_right_balance: int = abs(sum(self.__left_plates) - plate.weight - sum(self.__right_plates))
 
         if to_left_balance < to_right_balance:
             self.add_to_left(plate)
@@ -138,6 +193,19 @@ class Bar:
             self.add_to_right(plate)
 
     def pop_left(self) -> Plate:
+        """
+        Remove the last added plate from the left side of the barbell and return it.
+
+        Returns:
+        -------
+        plate : Plate
+            The last plate added to the left side of the barbell.
+
+        Raises:
+        ------
+        ImabalnceError
+            If the removal of the plate would cause the permissible level of imbalance to be exceeded.
+        """
         if not self.__left_plates:
             return
 
@@ -149,6 +217,19 @@ class Bar:
         self.__left_plates.pop()
 
     def pop_right(self) -> Plate:
+        """
+        Remove the last added plate from the right side of the barbell and return it.
+
+        Returns:
+        -------
+        plate : Plate
+            The last plate added to the right side of the barbell.
+
+        Raises:
+        ------
+        ImabalnceError
+            If the removal of the plate would cause the permissible level of imbalance to be exceeded.
+        """
         if not self.__right_plates:
             return
 
@@ -160,6 +241,7 @@ class Bar:
         self.__right_plates.pop()
 
     def print_bar(self) -> None:
+        """Print the string representation of the barbell."""
         for plate in self.__left_plates[::-1]:
             print(f"={plate.weight}", end="")
 
@@ -171,6 +253,7 @@ class Bar:
         print()
 
     def __str__(self) -> str:
+        """Get the string representation of the barbell."""
         result = []
 
         for plate in self.__left_plates[::-1]:
@@ -183,33 +266,70 @@ class Bar:
 
         return "".join(result)
 
-    def is_empty(self) -> bool:
-        return self.__left_plates and self.__right_plates
-
     @private
     def _validate_max_weight(self, weight: int) -> int:
+        """
+        Validate the max weight.
+
+        Parametrs:
+        ---------
+        weight : int
+            Max weight of the barbell.
+
+        Returns:
+        -------
+        int
+            Max weight if it's correct.
+
+        Raises:
+        ------
+        NegativeOrZeroWeightError
+            If max weight less than zero.
+        """
         if weight <= 0:
             raise NegativeOrZeroWeightError("Weight must be greater than zero")
         return weight
 
     @private
     def _validate_bar(self, plate: Plate) -> None:
+        """
+        Validate the barbell with added plate.
+
+        Parametrs:
+        ---------
+        plate : Plate
+            Plate to add on the barbell.
+
+        Raises:
+        ------
+        MaxWeightExcessError
+            If the adding of the plate will lead to increase in the maximum weight.
+        """
         if self.get_total_weight() + plate.weight > self.max_weight:
             raise MaxWeightExcessError("Maximum weight exceeded")
 
     @private
     def _validate_bar_balance(self, plate: Plate, to_left: bool = True) -> None:
+        """
+        Validate balance factor of the barbell with added plate.
+
+        Parametrs:
+        ---------
+        plate : Plate
+            Plate to add on the side of the barbell.
+        to_left : bool
+            Plate is added to the left side.
+            Defalult True.
+
+        Raises:
+        ------
+        ImbalanceError
+            If adding a plate will lead to increase in the acciptable level of imbalance.
+        """
         if to_left:
             side_coef = 1
         else:
             side_coef = -1
 
-        if (
-            abs(
-                sum(self.__left_plates)
-                - sum(self.__right_plates)
-                + side_coef * plate.weight
-            )
-            >= 20
-        ):
+        if abs(sum(self.__left_plates) - sum(self.__right_plates) + side_coef * plate.weight) >= 20:
             raise ImbalanceError("Balancing allowed level exceeded")
