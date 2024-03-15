@@ -23,7 +23,7 @@ def matrix_mul(m1: list[list[int]], m2: list[list[int]]) -> list[list[int]]:
 
     for i, _ in enumerate(m1):
         for j, _ in enumerate(m2[0]):
-            for k, _ in enumerate(m2)
+            for k, _ in enumerate(m2):
                 result_m[i][j] += m1[i][k] * m2[k][j]
 
     return result_m

@@ -4,7 +4,7 @@ from accessify import private
 
 
 # fmt: off
-class WrongRestrationNumberError(Exception): ...
+class RegistrationNumberError(Exception): ...
 class MaxCarsCountExcessError(Exception): ...
 # fmt: on
 
@@ -66,15 +66,15 @@ class Car:
 
         Raises:
         ------
-        WrongRestrationNumberError
+        RegistrationNumberError
             If registration_number of the car is not unique or does not match the pattern 'LdddLL'.
         """
         if number in self.registration_numbers:
-            raise WrongRestrationNumberError("Registration number must be unique")
+            raise RegistrationNumberError("Registration number must be unique")
 
         pattern: re.Pattern[str] = re.compile(r"[A-Z]{1}\d{3}[A-Z]{2}")
         if not pattern.match(number):
-            raise WrongRestrationNumberError("Registration number pattern must be 'LdddLL'")
+            raise RegistrationNumberError("Registration number pattern must be 'LdddLL'")
 
         return number
 
@@ -142,7 +142,7 @@ class Parking:
         MaxCarsCountExcessError
             If there is no parking space for the car.
         """
-        if len(self.__parked_cars) + 1 >= self.__max_cars_count:
+        if len(self.__parked_cars) + 1 > self.__max_cars_count:
             raise MaxCarsCountExcessError("Number of parking spaces exceeded")
 
         self.__parked_cars.append(car)
