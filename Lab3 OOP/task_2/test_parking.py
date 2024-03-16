@@ -1,5 +1,5 @@
 import pytest
-from parking import MaxCarsCountExcessError, Parking, Car, RegistrationNumberError
+from parking import CarDoesNotExists, MaxCarsCountExcessError, Parking, Car, RegistrationNumberError
 
 
 # Car tests
@@ -75,6 +75,9 @@ def test_parking_get_car_by_registration_number() -> None:
     assert car.model == "B1"
     assert car.registration_number == "B555CD"
 
+    with pytest.raises(CarDoesNotExists):
+        p.get_car_by_registration_number("A111AA")
+
 
 @pytest.mark.parking
 def test_parking_register_car_leave() -> None:
@@ -84,14 +87,18 @@ def test_parking_register_car_leave() -> None:
     p.register_car_parking(car_1)
     p.register_car_parking(car_2)
 
+    with pytest.raises(CarDoesNotExists):
+        p.register_car_leave(Car("Tesla", "C1", "A111AA"))
+    with pytest.raises(CarDoesNotExists):
+        p.register_car_leave("A111AA")
+    with pytest.raises(TypeError):
+        p.register_car_leave(1)
+
     p.register_car_leave(car_1)
     assert p.get_parked_cars_count() == 1
 
     p.register_car_leave("B777CD")
     assert p.get_parked_cars_count() == 0
-
-    with pytest.raises(TypeError):
-        p.register_car_leave(1)
 
 
 @pytest.mark.parking

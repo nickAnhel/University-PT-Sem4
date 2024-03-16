@@ -2,10 +2,10 @@ import re
 from functools import singledispatchmethod
 from accessify import private
 
-
 # fmt: off
 class RegistrationNumberError(Exception): ...
 class MaxCarsCountExcessError(Exception): ...
+class CarDoesNotExists(Exception): ...
 # fmt: on
 
 
@@ -22,6 +22,7 @@ class Car:
     registration_number : str
         Contains the registration_number of the car.
     """
+
     registration_numbers: set[str] = set()
 
     def __init__(self, manufacturer: str, model: str, registration_number: str) -> None:
@@ -101,6 +102,7 @@ class Parking:
     def print_parking() -> None:
         Print the string representation of the parking.
     """
+
     def __init__(self, max_car_count: int) -> None:
         self.__max_cars_count: int = self._validate_max_car_count(max_car_count)
         self.__parked_cars: list[Car] = []
@@ -122,11 +124,16 @@ class Parking:
         ---------
         number : str
             The registration number of the car.
+
+        Raises:
+        ------
+        CarDoesNotExists
+            If car with the given registration number is not parked in the parking.
         """
         for car in self.__parked_cars:
             if car.registration_number == number:
                 return car
-        return None
+        raise CarDoesNotExists("Car with the given registration number is not parked in the parking")
 
     def register_car_parking(self, car: Car) -> None:
         """
@@ -161,6 +168,8 @@ class Parking:
         ------
         TypeError
             If arg is not Car or str.
+        CarDoesNotExists
+            If car is not parked in the parking.
         """
         raise TypeError(f"Argument must be of type 'Car' or 'str', not {type(arg)}")
 
@@ -171,8 +180,7 @@ class Parking:
             return
 
         if car not in self.__parked_cars:
-            print("Car is not parked")
-            return
+            raise CarDoesNotExists("This car is not parked in the parking")
 
         self.__parked_cars.remove(car)
 
@@ -182,11 +190,7 @@ class Parking:
             print("Parking is empty")
             return
 
-        car: Car | None = self.get_car_by_registration_number(registration_number)
-        if car not in self.__parked_cars:
-            print("Car is not parked")
-            return
-
+        car: Car = self.get_car_by_registration_number(registration_number)
         self.__parked_cars.remove(car)
 
     def print_parking(self) -> None:
