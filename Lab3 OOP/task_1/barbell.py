@@ -7,7 +7,7 @@ class MaxWeightExcessError(Exception): ...
 class NegativeOrZeroWeightError(Exception): ...
 # fmt: on
 
-# adsadsasd
+
 class Plate:
     """
     Represents a plate.
