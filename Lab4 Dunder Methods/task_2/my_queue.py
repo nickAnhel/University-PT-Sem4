@@ -35,10 +35,8 @@ class Queue:
         return len(self.__items)
 
     def __iter__(self):
-        index = 0
-        while index < len(self.__items):
-            yield self.__items[index]
-            index += 1
+        for item in self.__items:
+            yield item
 
     def __contains__(self, item):
         return item in self.__items

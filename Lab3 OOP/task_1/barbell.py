@@ -111,7 +111,7 @@ class Bar:
     """
 
     def __init__(self, max_weight: int) -> None:
-        self.__max_weight: int = self._validate_max_weight(max_weight)
+        self.__max_weight: int = self.__validate_max_weight(max_weight)
         self.__left_plates: list[Plate] = []
         self.__right_plates: list[Plate] = []
 
@@ -144,8 +144,8 @@ class Bar:
         ImbalanceError
             If adding a plate will lead to increase in the acciptable level of imbalance.
         """
-        self._validate_bar(plate)
-        self._validate_bar_balance(plate)
+        self.__validate_bar(plate)
+        self.__validate_bar_balance(plate)
         self.__left_plates.append(plate)
 
     def add_to_right(self, plate: Plate) -> None:
@@ -164,8 +164,8 @@ class Bar:
         ImbalanceError
             If adding a plate will lead to increase in the acciptable level of imbalance.
         """
-        self._validate_bar(plate)
-        self._validate_bar_balance(plate, to_left=False)
+        self.__validate_bar(plate)
+        self.__validate_bar_balance(plate, to_left=False)
         self.__right_plates.append(plate)
 
     def add(self, plate: Plate) -> None:
@@ -265,7 +265,7 @@ class Bar:
         return "".join(result)
 
     @private
-    def _validate_max_weight(self, weight: int) -> int:
+    def __validate_max_weight(self, weight: int) -> int:
         """
         Validate the max weight.
 
@@ -289,7 +289,7 @@ class Bar:
         return weight
 
     @private
-    def _validate_bar(self, plate: Plate) -> None:
+    def __validate_bar(self, plate: Plate) -> None:
         """
         Validate the barbell with added plate.
 
@@ -307,7 +307,7 @@ class Bar:
             raise MaxWeightExcessError("Maximum weight exceeded")
 
     @private
-    def _validate_bar_balance(self, plate: Plate, to_left: bool = True) -> None:
+    def __validate_bar_balance(self, plate: Plate, to_left: bool = True) -> None:
         """
         Validate balance factor of the barbell with added plate.
 

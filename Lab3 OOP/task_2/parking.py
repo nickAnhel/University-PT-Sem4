@@ -28,7 +28,7 @@ class Car:
     def __init__(self, manufacturer: str, model: str, registration_number: str) -> None:
         self.__manufacturer: str = manufacturer
         self.__model: str = model
-        self.__registration_number: str = self._validate_registration_number(registration_number)
+        self.__registration_number: str = self.__validate_registration_number(registration_number)
         self.registration_numbers.add(registration_number)
 
     @property
@@ -51,7 +51,7 @@ class Car:
         return f"{self.__manufacturer} {self.__model} n. {self.__registration_number}"
 
     @private
-    def _validate_registration_number(self, number: str) -> str:
+    def __validate_registration_number(self, number: str) -> str:
         """
         Validate the registration_number of the car.
 
@@ -104,7 +104,7 @@ class Parking:
     """
 
     def __init__(self, max_car_count: int) -> None:
-        self.__max_cars_count: int = self._validate_max_car_count(max_car_count)
+        self.__max_cars_count: int = self.__validate_max_car_count(max_car_count)
         self.__parked_cars: list[Car] = []
 
     @property
@@ -223,7 +223,7 @@ class Parking:
         return "".join(result) + "\n"
 
     @private
-    def _validate_max_car_count(self, max_car_count: int) -> int:
+    def __validate_max_car_count(self, max_car_count: int) -> int:
         """
         Validate the max cars count.
 
