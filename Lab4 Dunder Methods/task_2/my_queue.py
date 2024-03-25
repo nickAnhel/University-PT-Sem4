@@ -1,5 +1,5 @@
 import copy
-from typing import Sequence, Generator, Any
+from typing import Mapping, Sequence, Generator, Any
 
 # fmt: off
 class EmptyQueueError(Exception): ...
@@ -7,7 +7,7 @@ class EmptyQueueError(Exception): ...
 
 
 class MyQueue:
-    def __init__(self, items: Sequence[Any] | None = None) -> None:
+    def __init__(self, items: Sequence[Any] | Mapping[Any, Any] | None = None) -> None:
         if items is None:
             self.__items: list[Any] = []
         else:
@@ -30,7 +30,7 @@ class MyQueue:
 
     def pop(self) -> Any:
         if not self.__items:
-            raise EmptyQueueError("Queue is empty")
+            raise EmptyQueueError("Queue is empty.")
 
         return self.__items.pop(0)
 
@@ -62,3 +62,12 @@ class MyQueue:
 
     def __str__(self) -> str:
         return "Queue: " + " -> ".join(str(item) for item in self.__items[::-1])
+
+    def __getitem__(self, key):
+        pass
+
+    def __setitem__(self, key, value):
+        pass
+
+    def __delitem__(self, key):
+        pass

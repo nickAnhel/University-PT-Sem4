@@ -11,30 +11,40 @@ class PasswordError(Exception): ...
 
 
 class User:
-    __private_attrs: tuple[str] = ()
+    __private_attrs: set[str] = {"name", "age", "gender", "address"}
 
-    @private
-    @classmethod
-    def __fill_private_attrs_set(cls) -> None:
-        cls.__private_attrs = ("name", "age", "gender", "address")
+    def __init__(self, name: str, password: str, age: int, gender: str, address: str, email: str = None) -> None:
+        self.__dict__["name"] = name
+        self.__dict__["age"] = self.__validate_age(age)
+        self.__dict__["gender"] = gender
+        self.__dict__["address"] = address
+        self.__email: str = self.__validate_email(email)
+        self.__password: str = self.__validate_password(password)
 
-    def __new__(cls, *args, **kwargs):
-        cls.__private_attrs = ()
-        return super().__new__(cls)
+    @property
+    def password(self) -> str:
+        return self.__password
 
-    def __init__(self, name: str, password: str, email: str, age: int, gender: str, address: str) -> None:
-        self.name: str = name
-        self.email: str = self.__validate_email(email)
-        self.password: str = self.__validate_password(password)
-        self.age: int = self.__validate_age(age)
-        self.gender: str = gender
-        self.address: str = address
-        self.__fill_private_attrs_set()
+    @password.setter
+    def password(self, p: str) -> None:
+        self.__password = self.__validate_password(p)
+
+    @property
+    def email(self) -> str:
+        return self.__email
+
+    @email.setter
+    def email(self, e: str) -> None:
+        self.__email = self.__validate_email(e)
 
     def __setattr__(self, name: str, value: Any) -> None:
         if name in self.__private_attrs:
             raise AttributeError("You can't change the value of this attribute after initialization")
+
         object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        raise AttributeError(f"You can't delete attribute with name '{name}'.")
 
     @private
     @classmethod
@@ -54,7 +64,7 @@ class User:
             raise TypeError("Password type must be 'str'")
 
         if len(password) < 8:
-            raise PasswordError(f"Password '{password}' if too short")
+            raise PasswordError(f"Password '{password}' is too short")
 
         pattern = re.compile(r"(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[#@$!%*?&])[A-Za-z\d#@$!%*?&]{8,}$")
         if not pattern.match(password):
@@ -66,6 +76,9 @@ class User:
     @private
     @classmethod
     def __validate_email(cls, email) -> str:
+        if email is None:
+            return None
+
         if not isinstance(email, str):
             raise TypeError("Email type must be 'str'")
 
