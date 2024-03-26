@@ -1,4 +1,5 @@
 import copy
+from dataclasses import dataclass
 from typing import Mapping, Sequence, Generator, Any
 
 # fmt: off
@@ -28,7 +29,7 @@ class MyQueue:
     def push(self, item) -> None:
         self.__items.append(item)
 
-    def pop(self) -> Any:
+    def get(self) -> Any:
         if not self.__items:
             raise EmptyQueueError("Queue is empty.")
 
@@ -47,6 +48,11 @@ class MyQueue:
     def __contains__(self, item) -> bool:
         return item in self.__items
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, self.__class__):
+            raise TypeError
+        return self.items == other.items
+
     def __add__(self, other) -> "MyQueue":
         if not isinstance(other, self.__class__):
             raise TypeError
@@ -58,16 +64,7 @@ class MyQueue:
         return MyQueue(self.items + other.items)
 
     def __repr__(self) -> str:
-        return "Queue: " + " -> ".join(str(item) for item in self.__items[::-1])
+        return f"MyQueue({self.__items})"
 
     def __str__(self) -> str:
         return "Queue: " + " -> ".join(str(item) for item in self.__items[::-1])
-
-    def __getitem__(self, key):
-        pass
-
-    def __setitem__(self, key, value):
-        pass
-
-    def __delitem__(self, key):
-        pass
