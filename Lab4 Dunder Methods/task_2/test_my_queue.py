@@ -1,3 +1,4 @@
+# Task 2 test_my_queue.py
 import pytest
 from my_queue import EmptyQueueError, MyQueue
 
@@ -51,7 +52,7 @@ def test_queue_contains(queue: MyQueue) -> None:
     assert (5 in queue) is False
 
 
-def test_queue_add_iadd(queue: MyQueue):
+def test_queue_add_iadd(queue: MyQueue) -> None:
     assert queue + MyQueue([5, 6]) == MyQueue([1, 2, 3, 4, 5, 6])
 
     queue += MyQueue([5, 6])
