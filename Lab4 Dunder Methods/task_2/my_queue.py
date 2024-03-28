@@ -1,6 +1,8 @@
 # Task 2 my_queue.py
 import copy
-from typing import Generic, Sequence, Generator, TypeVar
+from curses.ascii import EM
+from dataclasses import dataclass
+from typing import Generic, Generator, Optional, TypeVar
 
 
 T = TypeVar("T")
@@ -9,35 +11,36 @@ T = TypeVar("T")
 class EmptyQueueError(Exception): ...
 
 
+@dataclass
+class Node(Generic[T]):
+    value: T
+    next: Optional["Node[T]"]
+    prev: Optional["Node[T]"]
+
+
 class MyQueue(Generic[T]):
     """Represents the queue data structure."""
 
-    def __init__(self, items: Sequence[T] | None = None) -> None:
+    def __init__(self) -> None:
         """
         Parameters
         ----------
         items : Sequence[T] | None, optional
             Initial sequence, by default None
         """
-        if items is None:
-            self.__items: list[T] = []
-        else:
-            self.__items: list[T] = list(items)
-
-    @property
-    def items(self) -> list[T]:
-        """Get the queue items."""
-        return copy.deepcopy(self.__items)
+        self.__tail: Optional[Node[T]] = None
+        self.__head: Optional[Node[T]] = None
+        self.__size: int = 0
 
     @property
     def size(self) -> int:
         """Get the queue items count."""
-        return len(self.__items)
+        return self.__size
 
     @property
     def empty(self) -> bool:
         """Return True if queue is empty, or False."""
-        return len(self.__items) == 0
+        return self.__size == 0
 
     def push(self, item: T) -> None:
         """
@@ -48,9 +51,24 @@ class MyQueue(Generic[T]):
         item : T
             New item to add to the queue.
         """
-        self.__items.append(item)
+        if self.__head is None and self.__tail is None:
+            self.__head = self.__tail = Node[T](item, None, None)
+            self.__head.prev = self.__tail
+            self.__tail.next = self.__head
 
-    def get(self) -> T:
+        elif self.__head is self.__tail:
+            self.__head.next = None
+            self.__tail = Node[T](item, self.__head, None)
+            self.__head.prev = self.__tail
+
+        else:
+            node = Node[T](item, self.__tail, None)
+            self.__tail = node
+            self.__tail.next.prev = self.__tail
+
+        self.__size += 1
+
+    def get(self) -> T | None:
         """
         Pop the first added to the queue item.
 
@@ -64,62 +82,60 @@ class MyQueue(Generic[T]):
         EmptyQueueError
             If queue is empty.
         """
-        if not self.__items:
-            raise EmptyQueueError("Queue is empty.")
+        if self.__size == 0:
+            raise EmptyQueueError("Queue is empty")
 
-        return self.__items.pop(0)
+        if self.__head is self.__tail:
+            node = self.__head
+            self.__head = self.__tail = None
+            self.__size -= 1
+            return node.value
+
+        node = self.__head
+        self.__head = self.__head.prev
+        self.__head.next = None
+
+        self.__size -= 1
+
+        return node.value
 
     def __bool__(self) -> bool:
         """Get the boolen represenation of the queue."""
-        return bool(self.__items)
+        return self.__size == 0
 
     def __len__(self) -> int:
         """Get the number of items in the queue."""
-        return len(self.__items)
+        return self.__size
 
-    def __iter__(self) -> Generator[T, None, None]:
-        """Get the number of items in the queue."""
-        for item in self.__items:
-            yield item
+    def __contains__(self, value: T) -> bool:
+        temp = self.__head
+        while temp is not None:
+            if temp.value == value:
+                return True
+            temp = temp.prev
+        return False
 
-    def __contains__(self, item) -> bool:
-        """Return True if item is queued, else False."""
-        return item in self.__items
-
-    def __eq__(self, other) -> bool:
-        """Return True if item is queued, else False."""
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-        return self.items == other.items
-
-    def __add__(self, other) -> "MyQueue":
-        """Stack two queues."""
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-        return MyQueue(self.items + other.items)
-
-    def __iadd__(self, other) -> "MyQueue":
-        """Add one queue to another."""
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-
-        self.__items += other.items
-        return self
-
-    def __repr__(self) -> str:
-        """Get the string represrentation of the queue in class creation format."""
-        return f"MyQueue({self.__items})"
+    def __iter__(self) -> Generator:
+        temp = self.__head
+        while temp is not None:
+            yield temp.value
+            temp = temp.prev
 
     def __str__(self) -> str:
-        """Get the string represrentation of the queue."""
-        return "Queue: " + " -> ".join(str(item) for item in self.__items[::-1])
+        res: list[str] = []
+
+        temp = self.__tail
+        while temp is not None:
+            res.append(f"{temp.value}")
+            temp = temp.next
+
+        return " -> ".join(res)
 
 
 if __name__ == "__main__":
-    queue = MyQueue()
+    queue = MyQueue[int]()
+
     for i in range(1, 10):
         queue.push(i)
 
-    while not queue.empty:
-        task_index = queue.get()
-        print(f"Working on task #{task_index}")
+    print(queue)
