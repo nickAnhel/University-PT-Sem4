@@ -1,5 +1,7 @@
-from typing import Any, Sequence
 import uuid
+from decimal import Decimal
+from typing import Any, Sequence
+
 from storage import Storage, Item
 
 
@@ -7,7 +9,7 @@ class MaxWeightExcessError(Exception): ...
 
 
 class Book(Item):
-    def __init__(self, title: str, weight: int, author: str, price: int, id: uuid.UUID | None = None) -> None:
+    def __init__(self, title: str, weight: int, author: str, price: Decimal, id: uuid.UUID | None = None) -> None:
         self.__weight: int = self.validate_weight(weight)
         self.__author: str = author
         self.__price = self.validate_price(price)
@@ -23,8 +25,13 @@ class Book(Item):
         return self.__author
 
     @property
-    def price(self) -> int:
+    def price(self) -> Decimal:
         return self.__price
+
+    def to_dict(self) -> dict[str, Any]:
+        data = super().to_dict()
+        data["price"] = float(self.price)
+        return data
 
     def __str__(self) -> str:
         return f"Book #{self.id}: {self.title} by {self.author} with weight {self.weight} and price {self.price}"
@@ -40,7 +47,7 @@ class Book(Item):
         return self.__weight + other
 
     @classmethod
-    def validate_price(cls, price: int) -> int:
+    def validate_price(cls, price: Decimal) -> Decimal:
         if price < 0:
             raise ValueError("Price cannot be negative")
         return price
@@ -79,10 +86,10 @@ class Bookcase(Storage):
 
 if __name__ == "__main__":
     my_books = [
-        Book("book1", 10, "author1", 10),
-        Book("book2", 20, "author2", 20),
-        Book("book3", 30, "author3", 30),
-        Book("book4", 40, "author4", 40),
+        Book("book1", 10, "author1", Decimal(10)),
+        Book("book2", 20, "author2", Decimal(10)),
+        Book("book3", 30, "author3", Decimal(10)),
+        Book("book4", 40, "author4", Decimal(10)),
     ]
     my_bookcase = Bookcase(100, my_books)
     # for book in my_bookcase:
@@ -92,4 +99,4 @@ if __name__ == "__main__":
     # print(Bookcase(**my_bookcase.to_dict()))
     my_bookcase.write_to_file()
 
-    print(Bookcase.read_from_file())
+    print(Bookcase.read_from_file(str(my_bookcase.id)))

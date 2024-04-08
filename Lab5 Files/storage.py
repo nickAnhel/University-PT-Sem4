@@ -97,8 +97,8 @@ class Storage:
         self.__serializer.write(data)
 
     @classmethod
-    def read_from_file(cls) -> "Storage":
-        data = cls.__serializer.read()
+    def read_from_file(cls, id: str) -> "Storage":
+        data = cls.__serializer.read(id)
         return cls.from_dict(data)
 
     def __getitem__(self, index: int) -> Item:
@@ -169,4 +169,4 @@ if __name__ == "__main__":
 
     my_storage.write_to_file()
 
-    print(Storage.read_from_file())
+    print(Storage.read_from_file(str(my_storage.id)))
