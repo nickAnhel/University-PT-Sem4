@@ -28,6 +28,10 @@ class Item:
             data[attr] = item
         return data
 
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "Item":
+        return cls(**data)
+
     def __str__(self) -> str:
         return f"{self.title} #{self.id}"
 
@@ -157,16 +161,15 @@ if __name__ == "__main__":
         Item(title="book3"),
         Item(title="book4"),
     ]
-    my_storage = Storage(items=things)
+    my_storage = Storage(things, id=uuid.UUID("6864b880-520f-492f-9e43-06c917c0dc88"))
     # print(repr(my_storage))
     # print(my_storage)
     # print(iter(my_storage))
     # print((item for item in my_storage))
 
-    ds = my_storage.to_dict()
-    # print(ds)
     # print(Storage(**ds))
 
+    my_storage.add(Item("book5"))
     my_storage.write_to_file()
 
     print(Storage.read_from_file(str(my_storage.id)))

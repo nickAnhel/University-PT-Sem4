@@ -12,7 +12,7 @@ class Book(Item):
     def __init__(self, title: str, weight: int, author: str, price: Decimal, id: uuid.UUID | None = None) -> None:
         self.__weight: int = self.validate_weight(weight)
         self.__author: str = author
-        self.__price = self.validate_price(price)
+        self.__price: Decimal = self.validate_price(price)
 
         super().__init__(title, id)
 
@@ -29,7 +29,7 @@ class Book(Item):
         return self.__price
 
     def to_dict(self) -> dict[str, Any]:
-        data = super().to_dict()
+        data: dict[str, Any] = super().to_dict()
         data["price"] = float(self.price)
         return data
 
@@ -67,10 +67,28 @@ class Bookcase(Storage):
             raise MaxWeightExcessError("Total weight of books exceeds max weight of bookcase")
         super().__init__(items, id)
 
+    @property
+    def max_weight(self) -> int:
+        return self.__max_weight
+
+    @property
+    def total_book_weight(self) -> int:
+        return sum(self.__items)  # type: ignore
+
+    @property
+    def total_book_price(self) -> Decimal:
+        return sum(book.price for book in self.items)  # type: ignore
+
     def add(self, item: Book) -> None:
         if sum(self.__items) + item.weight > self.__max_weight:  # type: ignore
             raise MaxWeightExcessError("Total weight of books exceeds max weight of bookcase")
         super().add(item)
+
+    def find_book_by_author(self, author: str) -> Book | None:
+        for book in self.items:
+            if book.author == author:  # type: ignore
+                return book  # type: ignore
+        return None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Bookcase":
@@ -85,7 +103,7 @@ class Bookcase(Storage):
 
 
 if __name__ == "__main__":
-    my_books = [
+    my_books: list[Book] = [
         Book("book1", 10, "author1", Decimal(10)),
         Book("book2", 20, "author2", Decimal(10)),
         Book("book3", 30, "author3", Decimal(10)),
@@ -97,6 +115,8 @@ if __name__ == "__main__":
 
     # print(my_bookcase.to_dict())
     # print(Bookcase(**my_bookcase.to_dict()))
-    my_bookcase.write_to_file()
+    # my_bookcase.write_to_file()
+    # print(Bookcase.read_from_file(str(my_bookcase.id)))
 
-    print(Bookcase.read_from_file(str(my_bookcase.id)))
+    print(my_bookcase.total_book_price)
+    print(my_bookcase.find_book_by_author("author1"))
