@@ -1,3 +1,4 @@
+from typing import Any
 from abc import ABC, abstractmethod
 import json
 
@@ -13,9 +14,9 @@ class Serilizer(ABC):
 
 
 class JsonSerializer(Serilizer):
-    def write(self, data):
+    def write(self, data: dict[str, Any]):
         with open("test.json", "w", encoding="utf-8") as file:
-            json.dump(data, file)
+            json.dump(data, file, indent=4)
 
     def read(self):
         with open("test.json", "r", encoding="utf-8") as file:
@@ -30,9 +31,11 @@ class TxtSerializer(Serilizer):
 
     def read(self):
         with open("test.txt", "r", encoding="utf-8") as file:
-            data = file.readlines()
+            data = json.loads(file.read().replace("'", '"'))
         return data
 
 
-JsonSerializer().write({"1": "2"})
-print(JsonSerializer().read())
+if __name__ == "__main__":
+    # JsonSerializer().write({"1": "2"})
+    # print(JsonSerializer().read())
+    pass
