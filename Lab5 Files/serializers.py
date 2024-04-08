@@ -5,11 +5,11 @@ import json
 
 class Serilizer(ABC):
     @abstractmethod
-    def write(self, data):
+    def write(self, data) -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def read(self, id):
+    def read(self, id) -> dict[str, Any]:
         raise NotImplementedError()
 
 
@@ -25,7 +25,7 @@ class JsonSerializer(Serilizer):
 
 
 class TxtSerializer(Serilizer):
-    def write(self, data) -> None:
+    def write(self, data: dict[str, Any]) -> None:
         with open(f"Lab5 Files/data/txt/{data['id']}.txt", "w", encoding="utf-8") as file:
             file.write(str(data))
 
