@@ -66,12 +66,12 @@ class Storage:
 
     def pop(self, index: int = -1) -> Item:
         if index not in range(-len(self.__items), len(self.__items)):
-            raise ValueError(f"Index '{index}' is out of range")
+            raise IndexError(f"Index '{index}' is out of range")
         return self.__items.pop(index)
 
     def remove(self, item: Item) -> None:
         if item not in self.__items:
-            raise IndexError(f"Item {item.title} not in storage")
+            raise ValueError(f"Item {item.title} not in storage")
         self.__items.remove(item)
 
     def clear(self) -> None:
@@ -102,7 +102,7 @@ class Storage:
 
     @classmethod
     def read_from_file(cls, id: str) -> "Storage":
-        data = cls.__serializer.read(id)
+        data: dict[str, Any] = cls.__serializer.read(id)
         return cls.from_dict(data)
 
     def __getitem__(self, index: int) -> Item:
