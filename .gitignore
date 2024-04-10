@@ -3,4 +3,6 @@ __pycache__
 .venv
 .vscode
 .pylintrc
+.env
+test.py
 data

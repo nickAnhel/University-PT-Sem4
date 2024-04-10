@@ -1,7 +1,10 @@
 import uuid
 import enum
+import os
+import datetime
 from typing import Any
 from decimal import Decimal
+import requests
 
 from storage import Item, Storage
 
@@ -10,6 +13,22 @@ class Currency(enum.StrEnum):
     RUB = "RUB"
     USD = "USD"
     EUR = "EUR"
+
+
+def convert_currency(from_currency: Currency, to_currency: Currency, amount: Decimal) -> Decimal | None:
+    if from_currency == to_currency:
+        return amount
+    api_key: str | None = os.environ.get("API_KEY")
+    date: str = f"{datetime.datetime.now().year}-{datetime.datetime.now().month}-{datetime.datetime.now().day - 1}"
+    url: str = f"https://api.currencyapi.com/v3/historical?apikey={api_key}&base_currency={from_currency}&date={date}"
+
+    try:
+        coef: Decimal = Decimal(requests.get(url, timeout=1000).json()["data"][to_currency]["value"])
+        print(coef)
+    except KeyError:
+        return None
+
+    return Decimal(round(amount * coef, 2))
 
 
 class Stock(Item):
@@ -56,9 +75,17 @@ class InvestmentPortfolio(Storage):
     def total_amount(self) -> int:
         return sum(it.amount for it in self.items)  # type: ignore
 
-    @property
-    def total_price(self) -> Decimal:
-        return sum(it.total_price for it in self.items)  # type: ignore
+    def get_total_price(self, currency: Currency) -> Decimal:
+        total_price = Decimal(0)
+        for it in self.items:
+            if it.currency == currency:  # type: ignore
+                total_price += it.total_price  # type: ignore
+            else:
+                try:
+                    total_price += convert_currency(it.currency, currency, it.total_price)  # type: ignore
+                except TypeError:
+                    raise Exception
+        return total_price
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "InvestmentPortfolio":
@@ -78,15 +105,15 @@ if __name__ == "__main__":
         Stock(
             compain="Microsoft",
             amount=5,
-            price=Decimal(200),
-            currency=Currency.USD,
+            price=Decimal(3000),
+            currency=Currency.RUB,
             title="Microsoft",
         ),
         Stock(
             compain="Tesla",
             amount=3,
             price=Decimal(300),
-            currency=Currency.USD,
+            currency=Currency.EUR,
             title="Tesla",
         ),
     ]
@@ -95,5 +122,9 @@ if __name__ == "__main__":
     # print(my_portfolio.total_amount)
     # print(my_portfolio.total_price)
 
-    my_portfolio.write_to_file()
-    print(InvestmentPortfolio.read_from_file(str(my_portfolio.id)))
+    # my_portfolio.write_to_file()
+    # print(InvestmentPortfolio.read_from_file(str(my_portfolio.id)))
+
+    print(
+        my_portfolio.get_total_price(Currency.USD)
+    )
