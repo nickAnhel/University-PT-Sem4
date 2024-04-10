@@ -7,11 +7,15 @@ from serializers import Serilizer, JsonSerializer
 
 class Item:
     def __init__(self, title: str, id: uuid.UUID | None = None) -> None:
-        self.title: str = title
+        self.__title: str = title
         if id is None:
             self.__id: uuid.UUID = uuid.uuid4()
         else:
             self.__id: uuid.UUID = id
+
+    @property
+    def title(self) -> str:
+        return self.__title
 
     @property
     def id(self) -> uuid.UUID:
@@ -33,10 +37,10 @@ class Item:
         return cls(**data)
 
     def __str__(self) -> str:
-        return f"{self.title} #{self.id}"
+        return f"{self.__title} #{self.id}"
 
     def __repr__(self) -> str:
-        return f"Item(title={self.title}, id={repr(self.id)})"
+        return f"Item(title={self.__title}, id={repr(self.id)})"
 
 
 class Storage:
@@ -161,15 +165,7 @@ if __name__ == "__main__":
         Item(title="book3"),
         Item(title="book4"),
     ]
-    my_storage = Storage(things, id=uuid.UUID("6864b880-520f-492f-9e43-06c917c0dc88"))
-    # print(repr(my_storage))
-    # print(my_storage)
-    # print(iter(my_storage))
-    # print((item for item in my_storage))
+    my_storage = Storage(things)
 
-    # print(Storage(**ds))
-
-    my_storage.add(Item("book5"))
     my_storage.write_to_file()
-
     print(Storage.read_from_file(str(my_storage.id)))

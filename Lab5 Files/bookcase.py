@@ -38,7 +38,7 @@ class Book(Item):
 
     def __repr__(self) -> str:
         return (
-            f"Book(title={self.title}, author={self.author}, weight={self.weight}, price={self.price}, id={self.id})"
+            f"Book(title={self.__title}, author={self.author}, weight={self.weight}, price={self.price}, id={self.id})"
         )
 
     def __radd__(self, other: int) -> int:
@@ -110,13 +110,6 @@ if __name__ == "__main__":
         Book("book4", 40, "author4", Decimal(10)),
     ]
     my_bookcase = Bookcase(100, my_books)
-    # for book in my_bookcase:
-    #     print(repr(book))
 
-    # print(my_bookcase.to_dict())
-    # print(Bookcase(**my_bookcase.to_dict()))
-    # my_bookcase.write_to_file()
-    # print(Bookcase.read_from_file(str(my_bookcase.id)))
-
-    print(my_bookcase.total_book_price)
-    print(my_bookcase.find_book_by_author("author1"))
+    my_bookcase.write_to_file()
+    print(Bookcase.read_from_file(str(my_bookcase.id)))
