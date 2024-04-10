@@ -151,6 +151,14 @@ class StorageIterator(Generator[Item, Any, None]):
             return item
         raise StopIteration
 
+    def to_start(self) -> None:
+        self.__index = 0
+
+    def to_index(self, index: int) -> None:
+        if index not in range(-len(self.__items), len(self.__items)):
+            raise IndexError(f"Index '{index}' is out of range")
+        self.__index = index
+
     def send(self, value: Item) -> None:
         self.__items.append(value)
 
