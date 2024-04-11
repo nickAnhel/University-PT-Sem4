@@ -48,13 +48,13 @@ class Book(Item):
 
     @classmethod
     def validate_price(cls, price: Decimal) -> Decimal:
-        if price < 0:
+        if price <= 0:
             raise ValueError("Price cannot be negative")
         return price
 
     @classmethod
     def validate_weight(cls, weight: int) -> int:
-        if weight < 0:
+        if weight <= 0:
             raise ValueError("Weight cannot be negative")
         return weight
 
@@ -97,7 +97,7 @@ class Bookcase(Storage):
 
     @classmethod
     def validate_max_weight(cls, max_weight: int) -> int:
-        if max_weight < 0:
+        if max_weight <= 0:
             raise ValueError("Max weight cannot be negative")
         return max_weight
 
