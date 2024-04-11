@@ -1,6 +1,6 @@
+import json
 from typing import Any
 from abc import ABC, abstractmethod
-import json
 
 
 class Serilizer(ABC):
