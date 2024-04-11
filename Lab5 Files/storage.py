@@ -34,6 +34,7 @@ class Item:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Item":
+        data["id"] = uuid.UUID(data["id"])
         return cls(**data)
 
     def __str__(self) -> str:
@@ -41,6 +42,11 @@ class Item:
 
     def __repr__(self) -> str:
         return f"Item(title={self.__title}, id={repr(self.id)})"
+
+    def __eq__(self, other: "Item") -> bool:
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self.id == other.id and self.title == other.title
 
 
 class Storage:
@@ -97,7 +103,8 @@ class Storage:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Storage":
-        data["items"] = [Item(**it) for it in data["items"]]
+        data["items"] = [Item.from_dict(it) for it in data["items"]]
+        data["id"] = uuid.UUID(data["id"])
         return cls(**data)
 
     def write_to_file(self) -> None:
