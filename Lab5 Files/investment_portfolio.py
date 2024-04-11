@@ -8,6 +8,11 @@ import requests
 
 from storage import Item, Storage
 
+# fmt: off
+class NegativeOrZeroAmountError(Exception): ...
+class NegativeOrZeroPriceError(Exception): ...
+# fmt: on
+
 
 class Currency(enum.StrEnum):
     RUB = "RUB"
@@ -18,6 +23,7 @@ class Currency(enum.StrEnum):
 def convert_currency(from_currency: Currency, to_currency: Currency, amount: Decimal) -> Decimal | None:
     if from_currency == to_currency:
         return amount
+
     api_key: str | None = os.environ.get("API_KEY")
     date: str = f"{datetime.datetime.now().year}-{datetime.datetime.now().month}-{datetime.datetime.now().day - 1}"
     url: str = f"https://api.currencyapi.com/v3/historical?apikey={api_key}&base_currency={from_currency}&date={date}"
@@ -66,6 +72,18 @@ class Stock(Item):
         data["price"] = float(self.price)
         return data
 
+    @classmethod
+    def validate_amount(cls, amount: int) -> int:
+        if amount <= 0:
+            raise NegativeOrZeroAmountError("Amount cannot be negative")
+        return amount
+
+    @classmethod
+    def validate_price(cls, price: Decimal) -> Decimal:
+        if price <= 0:
+            raise NegativeOrZeroPriceError("Price cannot be negative")
+        return price
+
     def __str__(self) -> str:
         return f"Stock #{self.id}: {self.compain} {self.amount} {self.currency} {self.price}"
 
@@ -75,7 +93,7 @@ class InvestmentPortfolio(Storage):
     def total_amount(self) -> int:
         return sum(it.amount for it in self.items)  # type: ignore
 
-    def get_total_price(self, currency: Currency) -> Decimal:
+    def get_total_price(self, currency: Currency) -> Decimal | None:
         total_price = Decimal(0)
         for it in self.items:
             if it.currency == currency:  # type: ignore
@@ -83,8 +101,8 @@ class InvestmentPortfolio(Storage):
             else:
                 try:
                     total_price += convert_currency(it.currency, currency, it.total_price)  # type: ignore
-                except TypeError:
-                    raise Exception
+                except KeyError:
+                    return None
         return total_price
 
     @classmethod
@@ -119,12 +137,6 @@ if __name__ == "__main__":
     ]
 
     my_portfolio = InvestmentPortfolio(stocks)
-    # print(my_portfolio.total_amount)
-    # print(my_portfolio.total_price)
 
     # my_portfolio.write_to_file()
     # print(InvestmentPortfolio.read_from_file(str(my_portfolio.id)))
-
-    print(
-        my_portfolio.get_total_price(Currency.USD)
-    )
