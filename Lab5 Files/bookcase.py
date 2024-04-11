@@ -38,13 +38,24 @@ class Book(Item):
 
     def __repr__(self) -> str:
         return (
-            f"Book(title={self.__title}, author={self.author}, weight={self.weight}, price={self.price}, id={self.id})"
+            f"Book(title={self.title}, author={self.author}, weight={self.weight}, price={self.price}, id={self.id})"
         )
 
     def __radd__(self, other: int) -> int:
         if not isinstance(other, int):
             return NotImplemented
         return self.__weight + other
+
+    def __eq__(self, other: "Book") -> bool:
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return (
+            self.id == other.id
+            and self.title == other.title
+            and self.author == other.author
+            and self.weight == other.weight
+            and self.price == other.price
+        )
 
     @classmethod
     def validate_price(cls, price: Decimal) -> Decimal:
@@ -63,7 +74,7 @@ class Bookcase(Storage):
     def __init__(self, max_weight: int, items: Sequence[Book] | None = None, id: uuid.UUID | None = None) -> None:
         self.__max_weight: int = self.validate_max_weight(max_weight)
 
-        if sum(items) > self.__max_weight:  # type: ignore
+        if items is not None and sum(items) > self.__max_weight:  # type: ignore
             raise MaxWeightExcessError("Total weight of books exceeds max weight of bookcase")
         super().__init__(items, id)
 
@@ -73,14 +84,14 @@ class Bookcase(Storage):
 
     @property
     def total_book_weight(self) -> int:
-        return sum(self.__items)  # type: ignore
+        return sum(self.items)  # type: ignore
 
     @property
     def total_book_price(self) -> Decimal:
         return sum(book.price for book in self.items)  # type: ignore
 
     def add(self, item: Book) -> None:
-        if sum(self.__items) + item.weight > self.__max_weight:  # type: ignore
+        if sum(self.items) + item.weight > self.__max_weight:  # type: ignore
             raise MaxWeightExcessError("Total weight of books exceeds max weight of bookcase")
         super().add(item)
 
