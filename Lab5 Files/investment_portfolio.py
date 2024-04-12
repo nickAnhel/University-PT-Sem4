@@ -8,11 +8,6 @@ import requests
 
 from storage import Item, Storage
 
-# fmt: off
-class NegativeOrZeroAmountError(Exception): ...
-class NegativeOrZeroPriceError(Exception): ...
-# fmt: on
-
 
 class Currency(enum.StrEnum):
     RUB = "RUB"
@@ -28,11 +23,7 @@ def convert_currency(from_currency: Currency, to_currency: Currency, amount: Dec
     date: str = f"{datetime.datetime.now().year}-{datetime.datetime.now().month}-{datetime.datetime.now().day - 1}"
     url: str = f"https://api.currencyapi.com/v3/historical?apikey={api_key}&base_currency={from_currency}&date={date}"
 
-    try:
-        coef: Decimal = Decimal(requests.get(url, timeout=1000).json()["data"][to_currency]["value"])
-        print(coef)
-    except KeyError:
-        return None
+    coef: Decimal = Decimal(requests.get(url, timeout=1000).json()["data"][to_currency]["value"])
 
     return Decimal(round(amount * coef, 2))
 
@@ -75,17 +66,29 @@ class Stock(Item):
     @classmethod
     def validate_amount(cls, amount: int) -> int:
         if amount <= 0:
-            raise NegativeOrZeroAmountError("Amount cannot be negative")
+            raise ValueError("Amount cannot be negative")
         return amount
 
     @classmethod
     def validate_price(cls, price: Decimal) -> Decimal:
         if price <= 0:
-            raise NegativeOrZeroPriceError("Price cannot be negative")
+            raise ValueError("Price cannot be negative")
         return price
 
     def __str__(self) -> str:
         return f"Stock #{self.id}: {self.compain} {self.amount} {self.currency} {self.price}"
+
+    def __eq__(self, other: Item) -> bool:
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return (
+            self.id == other.id
+            and self.title == other.title
+            and self.compain == other.compain
+            and self.amount == other.amount
+            and self.price == other.price
+            and self.currency == other.currency
+        )
 
 
 class InvestmentPortfolio(Storage):
@@ -107,7 +110,8 @@ class InvestmentPortfolio(Storage):
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "InvestmentPortfolio":
-        data["items"] = [Stock(**it) for it in data["items"]]
+        data["items"] = [Stock.from_dict(it) for it in data["items"]]
+        data["id"] = uuid.UUID(data["id"])
         return cls(**data)
 
 
@@ -138,5 +142,5 @@ if __name__ == "__main__":
 
     my_portfolio = InvestmentPortfolio(stocks)
 
-    # my_portfolio.write_to_file()
-    # print(InvestmentPortfolio.read_from_file(str(my_portfolio.id)))
+    my_portfolio.write_to_file()
+    print(InvestmentPortfolio.read_from_file(str(my_portfolio.id)))
