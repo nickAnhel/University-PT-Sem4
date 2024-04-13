@@ -66,13 +66,13 @@ class Stock(Item):
     @classmethod
     def validate_amount(cls, amount: int) -> int:
         if amount <= 0:
-            raise ValueError("Amount cannot be negative")
+            raise ValueError("Amount cannot be negative or zero")
         return amount
 
     @classmethod
     def validate_price(cls, price: Decimal) -> Decimal:
         if price <= 0:
-            raise ValueError("Price cannot be negative")
+            raise ValueError("Price cannot be negative or zero")
         return price
 
     def __str__(self) -> str:

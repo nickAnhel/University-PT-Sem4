@@ -28,7 +28,7 @@ class Item:
                 item = str(item)
 
             if "__" in attr:
-                attr = attr.rsplit("__", maxsplit=1)[-1]
+                attr: str = attr.rsplit("__", maxsplit=1)[-1]
             data[attr] = item
         return data
 
@@ -93,7 +93,7 @@ class Storage:
             if "serializer" in attr:
                 continue
             if "__" in attr:
-                attr = attr.rsplit("__", maxsplit=1)[-1]
+                attr: str = attr.rsplit("__", maxsplit=1)[-1]
             data[attr] = item
 
         data["items"] = [it.to_dict() for it in data["items"]]
@@ -117,6 +117,8 @@ class Storage:
         return cls.from_dict(data)
 
     def __getitem__(self, index: int) -> Item:
+        if index not in range(-len(self.__items), len(self.__items)):
+            raise IndexError(f"Index '{index}' is out of range")
         return self.__items[index]
 
     def __setitem__(self, index: int, item: Item) -> None:
