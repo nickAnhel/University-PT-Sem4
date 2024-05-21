@@ -1,42 +1,25 @@
 import asyncio
-# import aiofiles
 
 
-async def read(file_name: str):
-    # async with aiofiles.open(file_name, mode="r", encoding="utf-8") as f:
-    #     result = [[], [], []]
-    #     index = 0
-    #     async for line in f:
-    #         result[index % 3].append(line.strip("\n"))
-    #         index += 1
-    #     return result
+async def read(file_name: str, queues: list[asyncio.Queue]):
     with open(file_name, mode="r", encoding="utf-8") as f:
-        result = [[], [], []]
         for index, line in enumerate(f):
-            result[index % 3].append(line.strip("\n"))
-        return result
+            await queues[index % 3].put(line.strip("\n"))
 
 
-async def write(file_name: str, data: list[str]):
-    # async with aiofiles.open(file_name, mode="w", encoding="utf-8") as f:
-    #     for item in data:
-    #         await f.write(item + "\n")
+async def write(file_name: str, queue: asyncio.Queue):
     with open(file_name, mode="w", encoding="utf-8") as f:
-        for item in data:
+        while not queue.empty():
+            item = await queue.get()
             f.write(item + "\n")
 
 
 async def main():
-    reader = asyncio.create_task(read("./data/input.txt"))
-    data = await reader
+    queues = [asyncio.Queue() for _ in range(3)]
+    reader = asyncio.create_task(read("./data/input.txt", queues))
+    writers = [asyncio.create_task(write(f"./data/output_{i}.txt", q)) for i, q in enumerate(queues)]
 
-    writers = [
-        asyncio.create_task(write(f"./data/output_{i}.txt", d)) for i, d in enumerate(data)
-    ]
-
-    await asyncio.gather(*writers)
-
-    print(data)
+    await asyncio.gather(reader, *writers)
 
 
 if __name__ == "__main__":
