@@ -1,17 +1,26 @@
 import asyncio
+# import aiofiles
 
 
 async def read(file_name: str):
+    # async with aiofiles.open(file_name, mode="r", encoding="utf-8") as f:
+    #     result = [[], [], []]
+    #     index = 0
+    #     async for line in f:
+    #         result[index % 3].append(line.strip("\n"))
+    #         index += 1
+    #     return result
     with open(file_name, mode="r", encoding="utf-8") as f:
         result = [[], [], []]
-        index = 0
-        for line in f:
+        for index, line in enumerate(f):
             result[index % 3].append(line.strip("\n"))
-            index += 1
         return result
 
 
 async def write(file_name: str, data: list[str]):
+    # async with aiofiles.open(file_name, mode="w", encoding="utf-8") as f:
+    #     for item in data:
+    #         await f.write(item + "\n")
     with open(file_name, mode="w", encoding="utf-8") as f:
         for item in data:
             f.write(item + "\n")
