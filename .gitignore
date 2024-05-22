@@ -6,4 +6,5 @@ __pycache__
 .env
 test.py
 data
+test_data
 logs
