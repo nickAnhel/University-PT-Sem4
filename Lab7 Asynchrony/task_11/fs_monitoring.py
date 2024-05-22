@@ -16,11 +16,11 @@ class Handler(LoggingEventHandler):
 
 
 async def monitor_directory(path: str) -> None:
-    logger: logging.Logger = logging.getLogger(path.split("/")[-1])
+    logger: logging.Logger = logging.getLogger(path.rsplit("/", maxsplit=1)[-1])
     logger.setLevel(logging.INFO)
 
     # File logs
-    fh = logging.FileHandler(f"./logs/{path.split('/')[-1]}.log")
+    fh = logging.FileHandler(f"./logs/{path.rsplit('/', maxsplit=1)[-1]}.log")
     fh.setLevel(logging.INFO)
     fh.setFormatter(logging.Formatter("%(asctime)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"))
 
