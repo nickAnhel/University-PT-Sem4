@@ -1,11 +1,16 @@
-import logging
 import asyncio
+import logging
+from logging.handlers import WatchedFileHandler
 from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler
 
 
 async def monitor_directory(path):
-    event_handler = LoggingEventHandler()
+    logger = logging.getLogger(path.split("/")[-1])
+    logger.setLevel(logging.INFO)
+    logger.addHandler(WatchedFileHandler(f"logs/{path.split('/')[-1]}.log"))
+
+    event_handler = LoggingEventHandler(logger)
 
     observer = Observer()
     observer.schedule(event_handler, path, recursive=True)
@@ -22,14 +27,13 @@ async def monitor_directory(path):
 
 
 async def main():
-    logging.basicConfig(
-        # filename="fs.log",
-        level=logging.INFO,
-        format="%(asctime)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
+    # logging.basicConfig(
+    #     # filename="fs.log",
+    #     level=logging.INFO,
+    #     format="%(asctime)s - %(message)s",
+    #     datefmt="%Y-%m-%d %H:%M:%S",
+    # )
 
-    # dirs_to_monitor = ["./data"]
     dirs_to_monitor = ["./data/dir1", "./data/dir2", "./data/dir3"]
     monitors = []
     for dir in dirs_to_monitor:
